@@ -55,9 +55,12 @@ def score_tokens(tokens):
         if i > 0 and tokens[i - 1] in INTENSIFIERS:
             value *= INTENSIFIERS[tokens[i - 1]]
 
-        # A negation within the preceding few words flips and dampens it.
+        # A negation within the preceding few words flips and dampens it, but
+        # only if no other lexicon word sits in between — a negation applies to
+        # the first opinion word it reaches and is spent there. Without this,
+        # "not bad, quite nice" would wrongly negate "nice" as well.
         window = tokens[max(0, i - NEGATION_SCOPE):i]
-        if any(w in NEGATIONS for w in window):
+        if any(w in NEGATIONS for w in window) and not any(w in LEXICON for w in window):
             value *= -0.75
 
         total += value
