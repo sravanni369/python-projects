@@ -27,7 +27,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        # CPU-only torch: the default wheel pulls CUDA and is far larger than the runner needs.
+        # Installing it first also satisfies torch in the per-project requirements below.
+        pip install torch --index-url https://download.pytorch.org/whl/cpu
+        # Projects live in their own folders, each with its own requirements.txt.
+        for req in $(find . -name requirements.txt); do pip install -r "$req"; done
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
