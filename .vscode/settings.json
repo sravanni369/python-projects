@@ -1,0 +1,4 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/pm25-forecast/.venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true
+}
