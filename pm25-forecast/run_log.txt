@@ -1,0 +1,51 @@
+PM2.5 24-hour forecaster
+seed=42  lookback=72h  horizon=24h  torch=2.9.1+cpu
+source: https://air-quality-api.open-meteo.com/v1/air-quality?latitude=28.61&longitude=77.21&hourly=pm2_5,pm10,carbon_monoxide,nitrogen_dioxide,ozone&past_days=92&forecast_days=0
+
+Fetching hourly air quality...
+  Delhi         2208 hourly rows  2026-04-25T00:00 to 2026-07-25T23:00
+  Mumbai        2208 hourly rows  2026-04-25T00:00 to 2026-07-25T23:00
+  Kolkata       2208 hourly rows  2026-04-25T00:00 to 2026-07-25T23:00
+  Los Angeles   2208 hourly rows  2026-04-25T00:00 to 2026-07-25T23:00
+  New York      2208 hourly rows  2026-04-25T00:00 to 2026-07-25T23:00
+  Fresno        2208 hourly rows  2026-04-25T00:00 to 2026-07-25T23:00
+
+windows: train=8700  val=1416  test=1422
+features: ['pm2_5', 'pm10', 'carbon_monoxide', 'nitrogen_dioxide', 'ozone', 'hour_sin', 'hour_cos']
+
+model: GRU hidden=64 layers=2  parameters=41,089
+
+epoch   1/40  train 0.2994  val 0.2429  <- best
+epoch   2/40  train 0.2838  val 0.2487
+epoch   3/40  train 0.2795  val 0.2290  <- best
+epoch   4/40  train 0.2774  val 0.2289  <- best
+epoch   5/40  train 0.2739  val 0.2338
+epoch   6/40  train 0.2672  val 0.2254  <- best
+epoch   7/40  train 0.2612  val 0.2148  <- best
+epoch   8/40  train 0.2558  val 0.2258
+epoch   9/40  train 0.2473  val 0.2286
+epoch  10/40  train 0.2375  val 0.2460
+epoch  11/40  train 0.2241  val 0.2460
+epoch  12/40  train 0.2061  val 0.2468
+epoch  13/40  train 0.1990  val 0.2644
+early stop: no val improvement for 6 epochs
+
+trained in 74.0s, best val loss 0.2148
+
+Held-out test window (last 15% of hours, never seen in training)
+city             n  model MAE  persist MAE  model RMSE  persist RMSE
+--------------------------------------------------------------------
+Delhi          237      31.23        30.14       41.12         44.71
+Mumbai         237       2.93         3.07        3.53          3.74
+Kolkata        237       8.99         8.02       11.72         10.80
+Los Angeles    237       3.68         3.93        5.17          5.05
+New York       237      12.77        16.09       20.68         23.99
+Fresno         237       3.11         3.91        3.90          5.03
+--------------------------------------------------------------------
+ALL           1422      10.45        10.86       19.62         21.43
+
+units: ug/m3. lower is better.
+RESULT: model beats persistence on MAE by 3.8% overall.
+Per-city results above show where it holds and where it does not.
+..............                                                           [100%]
+14 passed in 2.46s
